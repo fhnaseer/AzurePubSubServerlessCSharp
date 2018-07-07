@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -27,21 +28,21 @@ namespace AzurePubSubServerlessCSharp
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
         {
             var input = Common.GetPostObject<PublishContentInput>(req);
+
+            var entities = await Common.GetEntities<ContentEntity>(Common.ContentsTableName);
             foreach (var topic in input.Contents)
             {
-                var entities = await Common.GetEntities<ContentEntity>(Common.ContentsTableName, topic.Key);
+                var entity = entities.FirstOrDefault(e => e.PartitionKey == topic.Key);
+                if (entity == null) continue;
                 var messageBody = new
                 {
                     topic,
                     message = input.Message
                 };
-                foreach (var entity in entities)
-                {
-                    var queue = Common.GetSubsriberQueue(entity.RowKey);
-                    if (!CheckConditions(entity.Condition, entity.Value, entity.Value)) continue;
-                    var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)));
-                    queue.SendAsync(message);
-                }
+                var queue = Common.GetSubsriberQueue(entity.RowKey);
+                if (!CheckConditions(entity.Condition, entity.Value, entity.Value)) continue;
+                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)));
+                queue.SendAsync(message);
             }
             return new OkObjectResult(Common.GetPublishResponse());
         }

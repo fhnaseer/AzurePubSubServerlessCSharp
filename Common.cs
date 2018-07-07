@@ -88,6 +88,21 @@ namespace AzurePubSubServerlessCSharp
             return tableClient.GetTableReference(tableName);
         }
 
+        public static async Task<List<T>> GetEntities<T>(string tableName) where T : TableEntity, new()
+        {
+            var table = GetAzureTable(tableName);
+            var query = new TableQuery<T>();
+            var results = new List<T>();
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                var queryResults = await table.ExecuteQuerySegmentedAsync(query, continuationToken);
+                continuationToken = queryResults.ContinuationToken;
+                results.AddRange(queryResults.Results);
+            } while (continuationToken != null);
+            return results;
+        }
+
         public static async Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : TableEntity, new()
         {
             var table = GetAzureTable(tableName);
