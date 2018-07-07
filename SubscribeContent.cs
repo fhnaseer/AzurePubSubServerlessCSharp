@@ -31,9 +31,9 @@ namespace AzurePubSubServerlessCSharp
         public string Condition { get; set; }
     }
 
-    internal class SubscribeContentEntity : TableEntity
+    internal class ContentEntity : TableEntity
     {
-        public SubscribeContentEntity(string key, string subscriberId, string value, string condition)
+        public ContentEntity(string key, string subscriberId, string value, string condition)
         {
             PartitionKey = key;
             RowKey = subscriberId;
@@ -41,7 +41,7 @@ namespace AzurePubSubServerlessCSharp
             Condition = condition;
         }
 
-        public SubscribeContentEntity() { }
+        public ContentEntity() { }
 
         public string Value { get; set; }
 
@@ -58,7 +58,7 @@ namespace AzurePubSubServerlessCSharp
             var table = Common.GetAzureTable(Common.ContentsTableName);
             foreach (var content in input.Contents)
             {
-                var insertOperation = TableOperation.Insert(new SubscribeContentEntity(content.Key, input.SubscriberId, content.Value, content.Condition));
+                var insertOperation = TableOperation.Insert(new ContentEntity(content.Key, input.SubscriberId, content.Value, content.Condition));
                 try
                 {
                     table.ExecuteAsync(insertOperation);

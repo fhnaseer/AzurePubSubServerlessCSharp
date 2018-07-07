@@ -28,7 +28,7 @@ namespace AzurePubSubServerlessCSharp
             var input = Common.GetPostObject<PublishTopicInput>(req);
             foreach (var topic in input.Topics)
             {
-                var entities = await Common.GetEntities<SubscribeTopicEntity>(Common.TopicsTableName, topic);
+                var entities = await Common.GetEntities<TopicEntity>(Common.TopicsTableName, topic);
                 foreach (var entity in entities)
                 {
                     var queue = Common.GetSubsriberQueue(entity.RowKey);

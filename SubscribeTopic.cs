@@ -19,15 +19,15 @@ namespace AzurePubSubServerlessCSharp
         public List<string> Topics { get; set; }
     }
 
-    internal class SubscribeTopicEntity : TableEntity
+    internal class TopicEntity : TableEntity
     {
-        public SubscribeTopicEntity(string topic, string subscriberId)
+        public TopicEntity(string topic, string subscriberId)
         {
             PartitionKey = topic;
             RowKey = subscriberId;
         }
 
-        public SubscribeTopicEntity() { }
+        public TopicEntity() { }
     }
 
     public static class SubscribeTopic
@@ -39,7 +39,7 @@ namespace AzurePubSubServerlessCSharp
             var table = Common.GetAzureTable(Common.TopicsTableName);
             foreach (var topic in input.Topics)
             {
-                var insertOperation = TableOperation.Insert(new SubscribeTopicEntity(topic, input.SubscriberId));
+                var insertOperation = TableOperation.Insert(new TopicEntity(topic, input.SubscriberId));
                 try
                 {
                     table.ExecuteAsync(insertOperation);

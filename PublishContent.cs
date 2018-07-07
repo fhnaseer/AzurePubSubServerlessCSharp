@@ -29,7 +29,7 @@ namespace AzurePubSubServerlessCSharp
             var input = Common.GetPostObject<PublishContentInput>(req);
             foreach (var topic in input.Contents)
             {
-                var entities = await Common.GetEntities<SubscribeContentEntity>(Common.ContentsTableName, topic.Key);
+                var entities = await Common.GetEntities<ContentEntity>(Common.ContentsTableName, topic.Key);
                 var messageBody = new
                 {
                     topic,

@@ -27,9 +27,9 @@ namespace AzurePubSubServerlessCSharp
         public string MatchingFunction { get; set; }
     }
 
-    internal class SubscribeFunctionEntity : TableEntity
+    internal class FunctionEntity : TableEntity
     {
-        public SubscribeFunctionEntity(string subscriptionTopic, string subscriberId, string functionType, string matchinFunction, string matchingInputs)
+        public FunctionEntity(string subscriptionTopic, string subscriberId, string functionType, string matchinFunction, string matchingInputs)
         {
             PartitionKey = subscriptionTopic;
             RowKey = subscriberId;
@@ -52,7 +52,7 @@ namespace AzurePubSubServerlessCSharp
         {
             var input = Common.GetPostObject<SubscribeFunctionInput>(req);
             var table = Common.GetAzureTable(Common.FunctionsTableName);
-            var insertOperation = TableOperation.Insert(new SubscribeFunctionEntity(input.SubscriptionTopic, input.SubscriberId, input.FunctionType, input.MatchingFunction, input.MatchingInputs));
+            var insertOperation = TableOperation.Insert(new FunctionEntity(input.SubscriptionTopic, input.SubscriberId, input.FunctionType, input.MatchingFunction, input.MatchingInputs));
             try
             {
                 table.ExecuteAsync(insertOperation);
