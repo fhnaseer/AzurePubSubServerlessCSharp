@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -49,14 +48,14 @@ namespace AzurePubSubServerlessCSharp
     public static class SubscribeFunction
     {
         [FunctionName("SubscribeFunction")]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequest req, TraceWriter log)
+        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequest req, TraceWriter log)
         {
             var input = Common.GetPostObject<SubscribeFunctionInput>(req);
             var table = Common.GetAzureTable(Common.FunctionsTableName);
             var insertOperation = TableOperation.Insert(new SubscribeFunctionEntity(input.SubscriptionTopic, input.SubscriberId, input.FunctionType, input.MatchingFunction, input.MatchingInputs));
             try
             {
-                await table.ExecuteAsync(insertOperation);
+                table.ExecuteAsync(insertOperation);
             }
             catch (Exception e)
             {
