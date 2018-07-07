@@ -38,6 +38,8 @@ namespace AzurePubSubServerlessCSharp
             MatchingInputs = matchingInputs;
         }
 
+        public FunctionEntity() { }
+
         public string FunctionType { get; set; }
 
         public string MatchingFunction { get; set; }
