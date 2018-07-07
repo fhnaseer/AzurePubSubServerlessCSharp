@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AzurePubSubServerlessCSharp
 {
-    internal class ContentInput
+    internal class SubscribeContentInput
     {
         [JsonProperty("subscriberId")]
         public string SubscriberId { get; set; }
@@ -31,9 +31,9 @@ namespace AzurePubSubServerlessCSharp
         public string Condition { get; set; }
     }
 
-    internal class ContentEntity : TableEntity
+    internal class SubscribeContentEntity : TableEntity
     {
-        public ContentEntity(string key, string subscriberId, string value, string condition)
+        public SubscribeContentEntity(string key, string subscriberId, string value, string condition)
         {
             PartitionKey = key;
             RowKey = subscriberId;
@@ -52,11 +52,11 @@ namespace AzurePubSubServerlessCSharp
         public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
             HttpRequest req, TraceWriter log)
         {
-            var input = Common.GetPostObject<ContentInput>(req);
+            var input = Common.GetPostObject<SubscribeContentInput>(req);
             var table = Common.GetAzureTable(Common.ContentsTableName);
             foreach (var content in input.Contents)
             {
-                var insertOperation = TableOperation.Insert(new ContentEntity(content.Key, input.SubscriberId, content.Value, content.Condition));
+                var insertOperation = TableOperation.Insert(new SubscribeContentEntity(content.Key, input.SubscriberId, content.Value, content.Condition));
                 try
                 {
                     table.ExecuteAsync(insertOperation);
