@@ -26,6 +26,8 @@ namespace AzurePubSubServerlessCSharp
             PartitionKey = topic;
             RowKey = subscriberId;
         }
+
+        public SubscribeTopicEntity() { }
     }
 
     public static class SubscribeTopic

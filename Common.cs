@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -55,6 +58,11 @@ namespace AzurePubSubServerlessCSharp
             };
         }
 
+        public static QueueClient GetSubsriberQueue(string id)
+        {
+            return new QueueClient(GetServiceBusConnectionString(), id);
+        }
+
         public static Subscriber GetSubscriberResponse(string id)
         {
             return new Subscriber
@@ -64,12 +72,35 @@ namespace AzurePubSubServerlessCSharp
             };
         }
 
+        public static object GetPublishResponse()
+        {
+            return new
+            {
+                Message = "Topics published,"
+            };
+        }
+
         public static CloudTable GetAzureTable(string tableName)
         {
             var connectionString = GetStorageConnectionString();
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
             return tableClient.GetTableReference(tableName);
+        }
+
+        public static async Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : TableEntity, new()
+        {
+            var table = GetAzureTable(tableName);
+            var query = new TableQuery<T>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+            var results = new List<T>();
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                var queryResults = await table.ExecuteQuerySegmentedAsync(query, continuationToken);
+                continuationToken = queryResults.ContinuationToken;
+                results.AddRange(queryResults.Results);
+            } while (continuationToken != null);
+            return results;
         }
     }
 }
