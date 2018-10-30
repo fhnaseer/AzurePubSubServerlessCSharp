@@ -34,7 +34,7 @@ namespace AzurePubSubServerlessCSharp
                 var queue = Common.GetSubsriberQueue(entity.RowKey);
                 if (entity.FunctionType == "url")
                 {
-                    var response = await Client.GetAsync("http://www.example.com/recepticle.aspx");
+                    var response = await Client.GetAsync(entity.MatchingFunction);
                     var responseString = await response.Content.ReadAsStringAsync();
                     var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(responseString)));
                     queue.SendAsync(message);

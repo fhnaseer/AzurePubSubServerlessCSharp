@@ -17,6 +17,9 @@ namespace AzurePubSubServerlessCSharp
 
         [JsonProperty("QueueUrl")]
         public string QueueUrl { get; set; }
+
+        [JsonProperty("SubscriberId")]
+        public string SubscriberId { get; set; }
     }
 
     public static class Subscribe

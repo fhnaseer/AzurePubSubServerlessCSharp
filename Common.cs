@@ -54,7 +54,9 @@ namespace AzurePubSubServerlessCSharp
             return new Subscriber
             {
                 ConnectionString = GetServiceBusConnectionString(),
-                QueueName = id
+                QueueName = id,
+                QueueUrl = id,
+                SubscriberId = id
             };
         }
 
