@@ -30,20 +30,22 @@ namespace AzurePubSubServerlessCSharp
             var input = Common.GetPostObject<PublishContentInput>(req);
 
             var entities = await Common.GetEntities<ContentEntity>(Common.ContentsTableName);
+            var taskList = new List<Task>();
             foreach (var topic in input.Contents)
             {
                 var entity = entities.FirstOrDefault(e => e.PartitionKey == topic.Key);
                 if (entity == null) continue;
                 var messageBody = new
                 {
-                    topic,
+                    type = $"Content-based: Key: {topic.Key} Value: {topic.Value}",
                     message = input.Message
                 };
                 var queue = Common.GetSubsriberQueue(entity.RowKey);
-                if (!CheckConditions(entity.Condition, entity.Value, entity.Value)) continue;
+                if (!CheckConditions(entity.Condition, topic.Value, entity.Value)) continue;
                 var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)));
-                queue.SendAsync(message);
+                taskList.Add(queue.SendAsync(message));
             }
+            await Task.WhenAll(taskList);
             return new OkObjectResult(Common.GetPublishResponse());
         }
 

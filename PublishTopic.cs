@@ -32,6 +32,7 @@ namespace AzurePubSubServerlessCSharp
             var input = Common.GetPostObject<PublishTopicInput>(req);
             var functionInvoked = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
+            var taskList = new List<Task>();
             foreach (var topic in input.Topics)
             {
                 var entities = await Common.GetEntities<TopicEntity>(Common.TopicsTableName, topic);
@@ -42,16 +43,17 @@ namespace AzurePubSubServerlessCSharp
                     var queue = Common.GetSubsriberQueue(entity.RowKey);
                     var messageBody = new
                     {
-                        topic,
+                        type = $"Topic-based: {topic}",
                         message = input.Message,
                         fromPublisher = input.FromPublisher,
                         functionInvoked = functionInvoked,
                         databaseAccessed = databaseAccessed
                     };
                     var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)));
-                    queue.SendAsync(message);
+                    taskList.Add(queue.SendAsync(message));
                 }
             }
+            await Task.WhenAll(taskList);
             return new OkObjectResult(Common.GetPublishResponse());
         }
     }
